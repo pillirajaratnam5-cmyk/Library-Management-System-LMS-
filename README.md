@@ -54,7 +54,7 @@ The system enables librarians to efficiently manage books and users while ensuri
 The system provides a menu-driven interface for managing all library operations.
 
 <p align="center">
-  <img src="images/main_menu.png" width="700">
+  <img src="Images/main_menu.png" width="700">
 </p>
 
 ---
@@ -64,7 +64,7 @@ The system provides a menu-driven interface for managing all library operations.
 Allows the librarian to add new books into the library catalog.
 
 <p align="center">
-  <img src="images/add_book.png" width="700">
+  <img src="Images/add_book.png" width="700">
 </p>
 
 ---
@@ -74,7 +74,7 @@ Allows the librarian to add new books into the library catalog.
 Books can be searched using Book ID, Title, or Author Name.
 
 <p align="center">
-  <img src="images/search_book.png" width="700">
+  <img src="Images/search_book.png" width="700">
 </p>
 
 ---
@@ -84,7 +84,7 @@ Books can be searched using Book ID, Title, or Author Name.
 Books are issued to users while automatically recording issue and due dates.
 
 <p align="center">
-  <img src="images/issue_book.png" width="700">
+  <img src="Images/issue_book.png" width="700">
 </p>
 
 ---
@@ -94,7 +94,7 @@ Books are issued to users while automatically recording issue and due dates.
 Updates return records and restores available book quantity.
 
 <p align="center">
-  <img src="images/return_book.png" width="700">
+  <img src="Images/return_book.png" width="700">
 </p>
 
 ---
@@ -104,7 +104,7 @@ Updates return records and restores available book quantity.
 Displays all currently issued books and their status.
 
 <p align="center">
-  <img src="images/issued_books.png" width="700">
+  <img src="Images/issued_books.png" width="700">
 </p>
 
 ---
@@ -114,7 +114,7 @@ Displays all currently issued books and their status.
 Stores book and transaction records permanently using file handling.
 
 <p align="center">
-  <img src="images/save_records.png" width="700">
+  <img src="Images/save_records.png" width="700">
 </p>
 
 ---
