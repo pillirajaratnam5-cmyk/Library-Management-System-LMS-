@@ -1,1 +1,434 @@
-#code
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+struct book
+{
+    int book_id;
+    char title[50];
+    char author[50];
+    int quantity;
+    struct book *next;
+};
+
+struct issue 
+{
+    int issue_id;
+    int book_id; 
+    int user_id; 
+    char user_name[50]; 
+    char issue_date[20];
+    char due_date[20];
+    char return_date[20];
+    struct issue *next;
+};
+
+void add_new_book(struct book **);
+void update_book(struct book **);
+void remove_book(struct book **);
+void search_book(struct book *);
+void view_all_books(struct book *);
+void issue_book(struct book **, struct issue **);
+void return_book(struct book **, struct issue **);
+void list_issued_books(struct issue *, struct book *);
+void save_data(struct book *, struct issue *);
+
+void get_current_date(char *buffer);
+void get_due_date(char *buffer);
+
+int main() 
+{
+    struct book *book_head = 0;
+    struct issue *issue_head = 0;
+    int choice;
+
+    do {
+        printf("\n+----------------------------------------+\n");
+        printf("|         Book Management Menu           |\n");
+        printf("+----------------------------------------+\n");
+        printf("| 1. Add New Book                        |\n");
+        printf("| 2. Update Book Details                 |\n");
+        printf("| 3. Remove Book                         |\n");
+        printf("| 4. Search Book                         |\n");
+        printf("| 5. View All Books                      |\n");
+        printf("| 6. Issue Book                          |\n");
+        printf("| 7. Return Book                         |\n");
+        printf("| 8. List Issued Books                   |\n");
+        printf("| 9. Save                                |\n");
+        printf("| 10. Exit                               |\n");
+        printf("+----------------------------------------+\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch(choice) {
+            case 1: add_new_book(&book_head); break;
+            case 2: update_book(&book_head); break;
+            case 3: remove_book(&book_head); break;
+            case 4: search_book(book_head); break;
+            case 5: view_all_books(book_head); break;
+            case 6: issue_book(&book_head, &issue_head); break;
+            case 7: return_book(&book_head, &issue_head); break;
+            case 8: list_issued_books(issue_head, book_head); break;
+            case 9: save_data(book_head, issue_head); break;
+            case 10: printf("Exiting system...\n"); break;
+            default: printf("Invalid choice! Try again.\n");
+        }
+    } while(choice != 10);
+
+    return 0;
+}
+
+void add_new_book(struct book **ptr)
+{
+    struct book *temp = (struct book *)malloc(sizeof(struct book));
+    
+    printf("\n--- Add New Book ---\n");
+    printf("Enter Book ID: ");
+    scanf("%d", &temp->book_id);
+    printf("Enter Title: ");
+    scanf(" %[^\n]s", temp->title);
+    printf("Enter Author: ");
+    scanf(" %[^\n]s", temp->author);
+    printf("Enter Quantity: ");
+    scanf("%d", &temp->quantity);
+
+    if(*ptr == 0) {
+        temp->next = 0;
+        *ptr = temp;
+    } else {
+        struct book *last = *ptr;
+        while(last->next != 0)
+            last = last->next;
+        temp->next = 0;
+        last->next = temp;
+    }
+    printf("Book added successfully!\n");
+}
+
+void update_book(struct book **ptr) 
+{
+    char op;
+    int id;
+    char name[50];
+    struct book *curr;
+
+    do {
+        printf("\n+---------------------------+\n");
+        printf("|   Update Book Details     |\n");
+        printf("+---------------------------+\n");
+        printf("| A. By Book ID             |\n");
+        printf("| B. By Book Name           |\n");
+        printf("| D. Back to Main Menu      |\n");
+        printf("+---------------------------+\n");
+        printf("Choice: ");
+        scanf(" %c", &op);
+
+        if(op == 'D' || op == 'd') break;
+
+        curr = *ptr;
+        int found = 0;
+
+        if(op == 'A' || op == 'a') {
+            printf("Enter Book ID to update: ");
+            scanf("%d", &id);
+            while(curr != 0) {
+                if(curr->book_id == id) { found = 1; break; }
+                curr = curr->next;
+            }
+        } else if(op == 'B' || op == 'b') {
+            printf("Enter Book Name to update: ");
+            scanf(" %[^\n]s", name);
+            while(curr != 0) {
+                if(strcmp(curr->title, name) == 0) { found = 1; break; }
+                curr = curr->next;
+            }
+        }
+
+        if(found) {
+            printf("Current Details - Title: %s, Author: %s, Quantity: %d\n", curr->title, curr->author, curr->quantity);
+            printf("Enter New Title: "); scanf(" %[^\n]s", curr->title);
+            printf("Enter New Author: "); scanf(" %[^\n]s", curr->author);
+            printf("Enter New Quantity: "); scanf("%d", &curr->quantity);
+            printf("Book details updated!\n");
+        } else if (op == 'A' || op == 'a' || op == 'B' || op == 'b') {
+            printf("Book not found.\n");
+        }
+    } while(1);
+}
+
+void remove_book(struct book **ptr)
+{
+    char op;
+    int id;
+    char name[50];
+    struct book *curr, *prev;
+
+    do {
+        printf("\n+---------------------------+\n");
+        printf("|        Remove Book        |\n");
+        printf("+---------------------------+\n");
+        printf("| A. By Book ID             |\n");
+        printf("| B. By Book Name           |\n");
+        printf("| D. Back to Main Menu      |\n");
+        printf("+---------------------------+\n");
+        printf("Choice: ");
+        scanf(" %c", &op);
+
+        if(op == 'D' || op == 'd') break;
+
+        curr = *ptr;
+        prev = 0;
+        int found = 0;
+
+        if(op == 'A' || op == 'a') {
+            printf("Enter Book ID to remove: ");
+            scanf("%d", &id);
+            while(curr != 0) {
+                if(curr->book_id == id) { found = 1; break; }
+                prev = curr;
+                curr = curr->next;
+            }
+        } else if(op == 'B' || op == 'b') {
+            printf("Enter Book Name to remove: ");
+            scanf(" %[^\n]s", name);
+            while(curr != 0) {
+                if(strcmp(curr->title, name) == 0) { found = 1; break; }
+                prev = curr;
+                curr = curr->next;
+            }
+        }
+
+        if(found) {
+            if(prev == 0) {
+                *ptr = curr->next;
+            } else {
+                prev->next = curr->next;
+            }
+            free(curr);
+            printf("Book removed successfully!\n");
+        } else if (op == 'A' || op == 'a' || op == 'B' || op == 'b') {
+            printf("Book not found.\n");
+        }
+    } while(1);
+}
+
+void search_book(struct book *ptr)
+{
+    char op;
+    int id;
+    char search_str[50];
+
+    do {
+        printf("\n+---------------------------+\n");
+        printf("|        Search Book        |\n");
+        printf("+---------------------------+\n");
+        printf("| A. By Book ID             |\n");
+        printf("| B. By Book Name           |\n");
+        printf("| C. By Author Name         |\n");
+        printf("| D. Back to Main Menu      |\n");
+        printf("+---------------------------+\n");
+        printf("Choice: ");
+        scanf(" %c", &op);
+
+        if(op == 'D' || op == 'd') break;
+
+        struct book *curr = ptr;
+        int found = 0;
+
+        if(op == 'A' || op == 'a') {
+            printf("Enter Book ID: ");
+            scanf("%d", &id);
+        } else if(op == 'B' || op == 'b') {
+            printf("Enter Book Name: ");
+            scanf(" %[^\n]s", search_str);
+        } else if(op == 'C' || op == 'c') {
+            printf("Enter Author Name: ");
+            scanf(" %[^\n]s", search_str);
+        }
+
+        printf("\n--- Search Results ---\n");
+        while(curr != 0) {
+            int match = 0;
+            if((op == 'A' || op == 'a') && curr->book_id == id) match = 1;
+            if((op == 'B' || op == 'b') && strcmp(curr->title, search_str) == 0) match = 1;
+            if((op == 'C' || op == 'c') && strcmp(curr->author, search_str) == 0) match = 1;
+
+            if(match) {
+                printf("ID: %d | Title: %s | Author: %s | Qty: %d\n", curr->book_id, curr->title, curr->author, curr->quantity);
+                found = 1;
+            }
+            curr = curr->next;
+        }
+        if(!found && (op >= 'A' && op <= 'c')) printf("No books found matching criteria.\n");
+
+    } while(1);
+}
+
+void view_all_books(struct book *ptr)
+{
+    printf("\n--- Complete Library Catalog ---\n");
+    if (ptr == 0) {
+        printf("Library is empty.\n");
+        return;
+    }
+    while(ptr != 0) {
+        printf("ID: %d | Title: %s | Author: %s | Qty: %d\n", ptr->book_id, ptr->title, ptr->author, ptr->quantity);
+        ptr = ptr->next;
+    }
+}
+
+void issue_book(struct book **bptr, struct issue **iptr) 
+{
+    struct issue *temp = (struct issue *)malloc(sizeof(struct issue));
+    int b_id;
+    struct book *curr_book = *bptr;
+    
+    printf("\n--- Issue Book ---\n");
+    printf("Enter Issue ID: ");
+    scanf("%d", &temp->issue_id);
+    printf("Enter Book ID to issue: ");
+    scanf("%d", &b_id);
+
+    int can_issue = 0;
+    while(curr_book != 0) {
+        if(curr_book->book_id == b_id) {
+            if(curr_book->quantity > 0) {
+                can_issue = 1;
+                curr_book->quantity--;
+            }
+            break;
+        }
+        curr_book = curr_book->next;
+    }
+
+    if(!can_issue) {
+        printf("Error: Book not found or 0 copies available.\n");
+        free(temp);
+        return;
+    }
+
+    temp->book_id = b_id;
+    printf("Enter User ID: ");
+    scanf("%d", &temp->user_id);
+    printf("Enter User Name: ");
+    scanf(" %[^\n]s", temp->user_name);
+
+    get_current_date(temp->issue_date);
+    get_due_date(temp->due_date);
+    strcpy(temp->return_date, "Not Returned"); 
+
+    if(*iptr == 0) {
+        temp->next = 0;
+        *iptr = temp;
+    } else {
+        struct issue *last = *iptr;
+        while(last->next != 0)
+            last = last->next;
+        temp->next = 0;
+        last->next = temp;
+    }
+    printf("Book Issued! Issue Date: %s | Due Date: %s\n", temp->issue_date, temp->due_date);
+}
+
+void return_book(struct book **bptr, struct issue **iptr)
+{
+    int b_id, u_id;
+    struct issue *curr_issue = *iptr;
+    struct book *curr_book = *bptr;
+    int found = 0;
+
+    printf("\n--- Return Book ---\n");
+    printf("Enter Book ID: ");
+    scanf("%d", &b_id);
+    printf("Enter User ID: ");
+    scanf("%d", &u_id);
+
+    while(curr_issue != 0) {
+        if(curr_issue->book_id == b_id && curr_issue->user_id == u_id && strcmp(curr_issue->return_date, "Not Returned") == 0) {
+            get_current_date(curr_issue->return_date);
+            found = 1;
+            break;
+        }
+        curr_issue = curr_issue->next;
+    }
+
+    if(found) {
+        while(curr_book != 0) {
+            if(curr_book->book_id == b_id) {
+                curr_book->quantity++;
+                break;
+            }
+            curr_book = curr_book->next;
+        }
+        printf("Book returned successfully on %s.\n", curr_issue->return_date);
+    } else {
+        printf("Active issue record not found for this Book and User ID.\n");
+    }
+}
+
+void list_issued_books(struct issue *iptr, struct book *bptr) 
+{
+    printf("\n--- List of All Issued Books ---\n");
+    if (iptr == 0) {
+        printf("No books are currently issued.\n");
+        return;
+    }
+    while(iptr != 0) {
+        char b_title[50] = "Unknown";
+        struct book *curr_book = bptr;
+        while(curr_book != 0) {
+            if(curr_book->book_id == iptr->book_id) {
+                strcpy(b_title, curr_book->title);
+                break;
+            }
+            curr_book = curr_book->next;
+        }
+        
+        printf("Book: [%d] %s | User: [%d] %s | Issued: %s | Due: %s | Returned: %s\n",
+                iptr->book_id, b_title, iptr->user_id, iptr->user_name, 
+                iptr->issue_date, iptr->due_date, iptr->return_date);
+        iptr = iptr->next;
+    }
+}
+
+void save_data(struct book *bptr, struct issue *iptr) 
+{
+    FILE *fp_books = fopen("books_db.txt", "w");
+    FILE *fp_issues = fopen("issued_db.txt", "w");
+
+    if (fp_books != NULL) {
+        while(bptr != 0) {
+            fprintf(fp_books, "%d,%s,%s,%d\n", bptr->book_id, bptr->title, bptr->author, bptr->quantity);
+            bptr = bptr->next;
+        }
+        fclose(fp_books);
+    }
+    
+    if (fp_issues != NULL) 
+  {
+        while(iptr != 0) {
+            fprintf(fp_issues, "%d,%d,%d,%s,%s,%s,%s\n", 
+                iptr->issue_id, iptr->book_id, iptr->user_id, iptr->user_name, 
+                iptr->issue_date, iptr->due_date, iptr->return_date);
+            iptr = iptr->next;
+        }
+        fclose(fp_issues);
+    }
+    printf("Data successfully persisted to files.\n");
+}
+
+void get_current_date(char *buffer)
+{
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    sprintf(buffer, "%02d-%02d-%04d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900);
+}
+
+void get_due_date(char *buffer)
+{
+    time_t t = time(NULL);
+    t += 7 * 24 * 60 * 60;
+    struct tm tm = *localtime(&t);
+    sprintf(buffer, "%02d-%02d-%04d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900);
+}
